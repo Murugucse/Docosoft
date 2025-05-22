@@ -1,21 +1,30 @@
-trigger: none  # Because this is CD
+# azure-release.yml
+trigger:
+  branches:
+    include:
+      - main
 
+# Only run when the build artifact is available
 pr: none
 
-pool:
-  name: Default
+stages:
+- stage: Deploy
+  displayName: 'Deploy to Azure App Service'
+  jobs:
+  - job: DeployJob
+    displayName: 'Deploy Job'
+    pool:
+      name: Default   # Your self-hosted agent pool name
 
-steps:
-- task: DownloadBuildArtifacts@0
-  inputs:
-    buildType: 'current'
-    downloadType: 'single'
-    artifactName: 'drop'
-    downloadPath: '$(System.ArtifactsDirectory)'
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: drop
+        path: $(Pipeline.Workspace)
 
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'AzureServiceConnection'  # replace with your real service connection name
-    appType: 'webApp'
-    appName: 'Murugu-docowebapp'
-    package: '$(System.ArtifactsDirectory)/drop'
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'AzureServiceConnection'  # Use your service connection name
+        appType: 'webAppLinux'
+        appName: 'Murugu-docowebapp'                # Your App Service name
+        package: '$(Pipeline.Workspace)/drop/drop.zip'  # Adjust if your artifact path is different
