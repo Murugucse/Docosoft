@@ -1,15 +1,14 @@
-trigger: none  # Only trigger after CI completes
-
+trigger: none
 pr: none
 
 resources:
   pipelines:
-    - pipeline: buildPipeline          # Local reference name
-      source: Docosoft-CI-Pipeline     # Must match the pipeline name in Azure DevOps
-      trigger: true                    # Automatically trigger this CD pipeline after CI
+    - pipeline: buildPipeline
+      source: Docosoft-CI-Pipeline
+      trigger: true
 
 pool:
-  name: Default  # Your self-hosted agent pool
+  name: Default
 
 jobs:
 - job: DeployJob
@@ -20,12 +19,11 @@ jobs:
       inputs:
         artifact: 'drop'
         path: '$(Pipeline.Workspace)'
-        run: ${{ resources.pipeline.buildPipeline.runName }}
 
     - task: AzureWebApp@1
       displayName: 'Deploy to Azure Web App'
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # ✅ Update if yours is named differently
+        azureSubscription: 'AzureServiceConnection'
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'                # ✅ Your Azure Web App name
+        appName: 'Murugu-docowebapp'
         package: '$(Pipeline.Workspace)/drop/**/*.zip'
