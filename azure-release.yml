@@ -1,33 +1,28 @@
-trigger: none  # manual or CI-triggered
-
-pr: none
+trigger: none  # Disable commit-based trigger
 
 resources:
   pipelines:
     - pipeline: buildPipeline
-      source: Murugucse.Docosoft
-      trigger:
-        branches:
-          include:
-            - main
+      source: Docosoft-CI-Pipeline  # Use the exact name of your CI pipeline
+      trigger: true
 
 pool:
-  name: Default # use your self-hosted agent pool
+  name: Default  # Your self-hosted agent pool
 
 jobs:
 - job: DeployJob
   displayName: 'CD - Deploy to Azure Web App'
   steps:
-    - task: DownloadPipelineArtifact@2
-      displayName: 'Download build artifact'
-      inputs:
-        artifact: drop
-        path: $(Pipeline.Workspace)
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download build artifact'
+    inputs:
+      artifact: drop
+      path: $(Pipeline.Workspace)
 
-    - task: AzureWebApp@1
-      displayName: 'Deploy to Azure App Service'
-      inputs:
-        azureSubscription: 'AzureServiceConnection' # update this to your actual service connection name
-        appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp' # update this to your Azure App Service name
-        package: '$(Pipeline.Workspace)/drop/**/*.zip'
+  - task: AzureWebApp@1
+    displayName: 'Deploy to Azure App Service'
+    inputs:
+      azureSubscription: 'AzureServiceConnection'  # Your service connection name
+      appType: 'webAppLinux'
+      appName: 'Murugu-docoweapp'  # Your App Service name
+      package: '$(Pipeline.Workspace)/drop/**/*.zip'
