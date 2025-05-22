@@ -19,7 +19,6 @@ jobs:
     - task: DownloadPipelineArtifact@2
       displayName: 'Download CI artifact'
       inputs:
-        buildType: 'current'  # Download from the triggering CI run
         artifact: 'drop'      # This must match CI pipeline's ArtifactName
         path: '$(Pipeline.Workspace)'
 
