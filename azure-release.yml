@@ -1,10 +1,10 @@
 trigger: none
+pr: none
 
 resources:
   pipelines:
     - pipeline: buildPipeline
-      project: 'Docosoft'  # ✅ Add this line with your actual Azure DevOps project name
-      source: Docosoft-CI-Pipeline
+      source: Docosoft-CI-Pipeline  # ✅ exact name of your CI pipeline
       trigger: true
 
 pool:
@@ -17,16 +17,14 @@ jobs:
     - task: DownloadPipelineArtifact@2
       displayName: 'Download CI artifact'
       inputs:
-        source: 'specific'
-        project: 'Docosoft'               # ✅ Required for cross-pipeline artifact
-        pipeline: $(resources.pipeline.buildPipeline.runID)  # ✅ Dynamically reference triggered pipeline
+        source: current
         artifact: 'drop'
         path: '$(Pipeline.Workspace)'
 
     - task: AzureWebApp@1
       displayName: 'Deploy to Azure Web App'
       inputs:
-        azureSubscription: 'AzureServiceConnection'
+        azureSubscription: 'AzureServiceConnection'  # ✅ replace with your service connection name
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'
+        appName: 'Murugu-docowebapp'  # ✅ replace with your Azure Web App name
         package: '$(Pipeline.Workspace)/drop/**/*.zip'

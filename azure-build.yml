@@ -4,11 +4,14 @@ trigger:
       - main
 
 pool:
-  name: Default  # Or use: vmImage: 'ubuntu-latest' if Microsoft-hosted
+  name: Default  # or 'ubuntu-latest' for Microsoft-hosted agent
+
+variables:
+  buildConfiguration: 'Release'
 
 jobs:
 - job: BuildAndTest
-  displayName: 'CI - Build and Test'
+  displayName: 'CI - Build, Test and Publish'
   steps:
     - checkout: self
 
@@ -35,10 +38,11 @@ jobs:
       inputs:
         command: 'publish'
         publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
         zipAfterPublish: true
-        arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
 
-    - task: PublishPipelineArtifact@1
+    - task: PublishBuildArtifacts@1
       inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)'
-        artifactName: 'drop'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
