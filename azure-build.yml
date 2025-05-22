@@ -4,7 +4,7 @@ trigger:
       - main
 
 pool:
-  name: Default  # Your self-hosted agent pool name
+  name: Default  # Or use: vmImage: 'ubuntu-latest' if Microsoft-hosted
 
 jobs:
 - job: BuildAndTest
@@ -14,7 +14,7 @@ jobs:
 
     - task: UseDotNet@2
       inputs:
-        version: '8.0.100'  # 🔁 Use an exact valid version, 8.0.x is invalid
+        version: '8.0.100'
 
     - task: DotNetCoreCLI@2
       inputs:
@@ -38,8 +38,7 @@ jobs:
         zipAfterPublish: true
         arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
 
-    - task: PublishBuildArtifacts@1
+    - task: PublishPipelineArtifact@1
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'

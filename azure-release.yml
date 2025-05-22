@@ -1,34 +1,27 @@
-trigger: none  # CD should only run after CI pipeline finishes
-
-pr: none
+trigger: none  # CD runs only when triggered from CI
 
 resources:
   pipelines:
-    - pipeline: buildPipeline  # This is the reference name
-      source: Docosoft-CI-Pipeline  # This must match the CI pipeline name in Azure DevOps
+    - pipeline: buildPipeline  # alias
+      source: Docosoft-CI-Pipeline
       trigger: true
 
 pool:
-  name: Default  # Your self-hosted agent pool
-
-variables:
-  buildConfiguration: 'Release'
+  name: Default  # Or use: vmImage: 'ubuntu-latest'
 
 jobs:
 - job: DeployJob
   displayName: 'CD - Deploy to Azure Web App'
   steps:
     - task: DownloadPipelineArtifact@2
-      displayName: 'Download CI artifact'
       inputs:
-        source: buildPipeline
+        source: 'specific'
         artifact: 'drop'
         path: '$(Pipeline.Workspace)'
 
     - task: AzureWebApp@1
-      displayName: 'Deploy to Azure Web App'
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # 🔁 Replace with your actual service connection name
+        azureSubscription: 'AzureServiceConnection'
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'                 # 🔁 Replace with your Azure Web App name
+        appName: 'Murugu-docowebapp'
         package: '$(Pipeline.Workspace)/drop/**/*.zip'
