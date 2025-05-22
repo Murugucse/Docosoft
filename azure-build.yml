@@ -1,0 +1,44 @@
+# azure-build.yml
+
+# Trigger the pipeline on every push to the main branch
+trigger:
+  - main
+
+# Use the latest Ubuntu-based Microsoft-hosted agent
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  outputPath: '$(Build.ArtifactStagingDirectory)/publish'
+
+steps:
+# Install the required .NET 8 SDK
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.x'  # Matches your <TargetFramework>net8.0</TargetFramework>
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+# Restore NuGet packages
+- script: dotnet restore
+  displayName: 'Restore NuGet packages'
+
+# Run unit tests (if any are available)
+- script: dotnet test --no-build --verbosity normal
+  displayName: 'Run unit tests'
+
+# Build the application in Release mode
+- script: dotnet build --configuration $(buildConfiguration) --no-restore
+  displayName: 'Build application'
+
+# Publish the application to a staging folder
+- script: dotnet publish --configuration $(buildConfiguration) --output $(outputPath)
+  displayName: 'Publish application'
+
+# Upload the published output as an artifact for CD pipeline
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(outputPath)'
+    artifactName: 'drop'
+    publishLocation: 'Container'
