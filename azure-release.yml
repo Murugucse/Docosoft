@@ -1,30 +1,33 @@
-# azure-release.yml
-trigger:
-  branches:
-    include:
-      - main
+trigger: none  # manual or CI-triggered
 
-# Only run when the build artifact is available
 pr: none
 
-stages:
-- stage: Deploy
-  displayName: 'Deploy to Azure App Service'
-  jobs:
-  - job: DeployJob
-    displayName: 'Deploy Job'
-    pool:
-      name: Default   # Your self-hosted agent pool name
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: Murugucse.Docosoft
+      trigger:
+        branches:
+          include:
+            - main
 
-    steps:
+pool:
+  name: Default # use your self-hosted agent pool
+
+jobs:
+- job: DeployJob
+  displayName: 'CD - Deploy to Azure Web App'
+  steps:
     - task: DownloadPipelineArtifact@2
+      displayName: 'Download build artifact'
       inputs:
         artifact: drop
         path: $(Pipeline.Workspace)
 
     - task: AzureWebApp@1
+      displayName: 'Deploy to Azure App Service'
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # Use your service connection name
+        azureSubscription: 'AzureServiceConnection' # update this to your actual service connection name
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'                # Your App Service name
-        package: '$(Pipeline.Workspace)/drop/drop.zip'  # Adjust if your artifact path is different
+        appName: 'Murugu-docowebapp' # update this to your Azure App Service name
+        package: '$(Pipeline.Workspace)/drop/**/*.zip'
