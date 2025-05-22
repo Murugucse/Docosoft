@@ -1,44 +1,32 @@
-# azure-build.yml
-
-# Trigger the pipeline on every push to the main branch
 trigger:
-  - main
+- main
 
-# Use the latest Ubuntu-based Microsoft-hosted agent
 pool:
-  vmImage: 'ubuntu-latest'
-
-variables:
-  buildConfiguration: 'Release'
-  outputPath: '$(Build.ArtifactStagingDirectory)/publish'
+  name: Default
+  demands:
+  - agent.name -equals doco
 
 steps:
-# Install the required .NET 8 SDK
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '8.0.x'  # Matches your <TargetFramework>net8.0</TargetFramework>
+    version: '8.0.x'
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
-# Restore NuGet packages
 - script: dotnet restore
-  displayName: 'Restore NuGet packages'
+  displayName: 'Restore dependencies'
 
-# Run unit tests (if any are available)
-- script: dotnet test --no-build --verbosity normal
+- script: dotnet test
   displayName: 'Run unit tests'
 
-# Build the application in Release mode
-- script: dotnet build --configuration $(buildConfiguration) --no-restore
-  displayName: 'Build application'
+- script: dotnet build --configuration Release
+  displayName: 'Build project'
 
-# Publish the application to a staging folder
-- script: dotnet publish --configuration $(buildConfiguration) --output $(outputPath)
-  displayName: 'Publish application'
+- script: dotnet publish --configuration Release -o $(Build.ArtifactStagingDirectory)
+  displayName: 'Publish app'
 
-# Upload the published output as an artifact for CD pipeline
 - task: PublishBuildArtifacts@1
   inputs:
-    pathToPublish: '$(outputPath)'
-    artifactName: 'drop'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
     publishLocation: 'Container'
