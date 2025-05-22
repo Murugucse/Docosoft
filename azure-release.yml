@@ -4,7 +4,7 @@ pr: none
 resources:
   pipelines:
     - pipeline: buildPipeline
-      source: Docosoft-CI-Pipeline  # ✅ exact name of your CI pipeline
+      source: Docosoft-CI-Pipeline
       trigger: true
 
 pool:
@@ -15,16 +15,14 @@ jobs:
   displayName: 'CD - Deploy to Azure Web App'
   steps:
     - task: DownloadPipelineArtifact@2
-      displayName: 'Download CI artifact'
       inputs:
         source: current
         artifact: 'drop'
-        path: '$(Pipeline.Workspace)'
+        path: '$(Pipeline.Workspace)/drop'
 
     - task: AzureWebApp@1
-      displayName: 'Deploy to Azure Web App'
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # ✅ replace with your service connection name
+        azureSubscription: 'AzureServiceConnection'  # 🔁 Update to match your service connection
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'  # ✅ replace with your Azure Web App name
-        package: '$(Pipeline.Workspace)/drop/**/*.zip'
+        appName: 'Murugu-docowebapp'
+        package: '$(Pipeline.Workspace)/drop/*.zip'

@@ -4,7 +4,7 @@ trigger:
       - main
 
 pool:
-  name: Default  # or 'ubuntu-latest' for Microsoft-hosted agent
+  name: Default
 
 variables:
   buildConfiguration: 'Release'
@@ -38,11 +38,11 @@ jobs:
       inputs:
         command: 'publish'
         publishWebProjects: true
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/webapp'
         zipAfterPublish: true
 
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/webapp'
         ArtifactName: 'drop'
         publishLocation: 'Container'
