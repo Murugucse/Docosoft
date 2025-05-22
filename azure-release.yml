@@ -1,37 +1,31 @@
-trigger: none  # Prevent triggering on every commit
+trigger: none  # Manual or pipeline-triggered only
 
 pr: none
 
 resources:
   pipelines:
-    - pipeline: buildPipeline
-      source: Docosoft-CI-Pipeline  # Match the exact name of your CI pipeline
-      trigger:
-        branches:
-          include:
-            - main
+    - pipeline: buildPipeline  # reference name used in this file
+      source: Docosoft-CI-Pipeline  # name of your CI pipeline
+      trigger: true  # triggers CD when CI completes
 
 pool:
-  name: Default  # Self-hosted agent pool
+  name: Default
 
 jobs:
 - job: DeployJob
   displayName: 'CD - Deploy to Azure Web App'
   steps:
     - task: DownloadPipelineArtifact@2
-      displayName: 'Download build artifact'
       inputs:
         buildType: 'specific'
-        project: 'Docusoft'
-        pipeline: $(resources.pipeline.buildPipeline.pipelineId)
-        runVersion: 'latest'
+        project: 'Docosoft'
+        pipeline: $(resources.pipeline.buildPipeline.pipelineID)
         artifact: 'drop'
         path: '$(Pipeline.Workspace)'
 
     - task: AzureWebApp@1
-      displayName: 'Deploy to Azure App Service'
       inputs:
-        azureSubscription: 'AzureServiceConnection'
+        azureSubscription: 'AzureServiceConnection'  # ✅ Your service connection name
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'
+        appName: 'Murugu-docowebapp'  # ✅ Your app name
         package: '$(Pipeline.Workspace)/drop/**/*.zip'
