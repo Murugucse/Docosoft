@@ -1,12 +1,12 @@
-trigger: none  # Manual or pipeline-triggered only
+trigger: none  # CD pipeline is triggered by CI pipeline
 
 pr: none
 
 resources:
   pipelines:
-    - pipeline: buildPipeline  # reference name used in this file
-      source: Docosoft-CI-Pipeline  # name of your CI pipeline
-      trigger: true  # triggers CD when CI completes
+    - pipeline: buildPipeline  # reference name used below
+      source: Docosoft-CI-Pipeline  # ✅ Must match CI pipeline name
+      trigger: true  # 🔁 Auto-trigger CD after CI succeeds
 
 pool:
   name: Default
@@ -17,15 +17,13 @@ jobs:
   steps:
     - task: DownloadPipelineArtifact@2
       inputs:
-        buildType: 'specific'
-        project: 'Docosoft'
-        pipeline: $(resources.pipeline.buildPipeline.pipelineID)
+        buildType: 'current'  # ✅ Use 'current' for latest run
         artifact: 'drop'
         path: '$(Pipeline.Workspace)'
 
     - task: AzureWebApp@1
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # ✅ Your service connection name
+        azureSubscription: 'AzureServiceConnection'  # ✅ Must match your service connection
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'  # ✅ Your app name
+        appName: 'Murugu-docowebapp'  # ✅ Must match Azure App name
         package: '$(Pipeline.Workspace)/drop/**/*.zip'

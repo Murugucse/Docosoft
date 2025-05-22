@@ -14,7 +14,7 @@ jobs:
 
     - task: UseDotNet@2
       inputs:
-        version: '8.0.x'  # ✅ Specify full .NET version
+        version: '8.0.100'  # 🔁 Use an exact valid version, 8.0.x is invalid
 
     - task: DotNetCoreCLI@2
       inputs:
