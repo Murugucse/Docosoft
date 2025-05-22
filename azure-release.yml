@@ -1,12 +1,11 @@
-trigger: none  # CD runs only after CI pipeline
-
+trigger: none
 pr: none
 
 resources:
   pipelines:
-    - pipeline: buildPipeline  # This is a reference name
-      source: Docosoft-CI-Pipeline  # Name of your CI pipeline exactly
-      trigger: true  # CD auto-triggers after CI succeeds
+    - pipeline: buildPipeline
+      source: Docosoft-CI-Pipeline
+      trigger: true
 
 pool:
   name: Default
@@ -17,8 +16,8 @@ jobs:
   steps:
     - task: DownloadPipelineArtifact@2
       inputs:
-        buildType: 'current'  # ✅ FIX: Get the artifact from the CI build that triggered this CD
-        artifact: 'drop'
+        buildType: 'current'   # ✅ use 'current' to get artifact from triggering build
+        artifact: 'drop'       # ✅ must match what was published in CI
         path: '$(Pipeline.Workspace)'
 
     - task: AzureWebApp@1
