@@ -1,25 +1,30 @@
-trigger: none  # CD runs only when triggered from CI
+trigger: none
 
 resources:
   pipelines:
-    - pipeline: buildPipeline  # alias
+    - pipeline: buildPipeline
+      project: 'Docosoft'  # ✅ Add this line with your actual Azure DevOps project name
       source: Docosoft-CI-Pipeline
       trigger: true
 
 pool:
-  name: Default  # Or use: vmImage: 'ubuntu-latest'
+  name: Default
 
 jobs:
 - job: DeployJob
   displayName: 'CD - Deploy to Azure Web App'
   steps:
     - task: DownloadPipelineArtifact@2
+      displayName: 'Download CI artifact'
       inputs:
         source: 'specific'
+        project: 'Docosoft'               # ✅ Required for cross-pipeline artifact
+        pipeline: $(resources.pipeline.buildPipeline.runID)  # ✅ Dynamically reference triggered pipeline
         artifact: 'drop'
         path: '$(Pipeline.Workspace)'
 
     - task: AzureWebApp@1
+      displayName: 'Deploy to Azure Web App'
       inputs:
         azureSubscription: 'AzureServiceConnection'
         appType: 'webAppLinux'
