@@ -8,16 +8,13 @@ builder.Services.AddSingleton<ICounterService, CounterService>();
 
 var app = builder.Build();
 
-// Enable Swagger in Development
-if (app.Environment.IsDevelopment())
-{
+// Enable Swagger in all
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
         options.RoutePrefix = string.Empty; // Makes Swagger UI available at root "/"
     });
-}
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
