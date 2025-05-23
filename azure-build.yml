@@ -1,48 +1,32 @@
+# CI pipeline (azure-pipelines-ci.yml)
 trigger:
   branches:
     include:
       - main
 
 pool:
-  name: Default
+  vmImage: 'ubuntu-latest'
 
-variables:
-  buildConfiguration: 'Release'
-
-jobs:
-- job: BuildAndTest
-  displayName: 'CI - Build, Test and Publish'
-  steps:
-    - checkout: self
-
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
     - task: UseDotNet@2
       inputs:
-        version: '8.0.100'
+        packageType: 'sdk'
+        version: '8.0.x'
 
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'restore'
-        projects: '**/*.csproj'
-
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'build'
-        projects: '**/*.csproj'
-
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'test'
-        projects: '**/*Tests.csproj'
+    - script: dotnet build src/CounterApi.csproj --configuration Release
 
     - task: DotNetCoreCLI@2
       inputs:
         command: 'publish'
         publishWebProjects: true
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/webapp'
+        arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
         zipAfterPublish: true
 
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)/webapp'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'

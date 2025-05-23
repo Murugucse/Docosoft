@@ -1,28 +1,29 @@
-trigger: none
-pr: none
+trigger: none  # prevent triggering on source changes
 
 resources:
   pipelines:
-    - pipeline: buildPipeline
-      source: Docosoft-CI-Pipeline
+    - pipeline: CITrigger
+      source: Docosoft-CI-Pipeline  # ✅ Replace with your CI pipeline name exactly
       trigger: true
 
 pool:
-  name: Default
+  vmImage: 'ubuntu-latest'
 
 jobs:
-- job: DeployJob
+- job: Deploy
   displayName: 'CD - Deploy to Azure Web App'
   steps:
+    - checkout: self
+
     - task: DownloadPipelineArtifact@2
       inputs:
-        source: current
+        source: 'pipeline'
         artifact: 'drop'
         path: '$(Pipeline.Workspace)/drop'
 
     - task: AzureWebApp@1
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # 🔁 Update to match your service connection
+        azureSubscription: 'AzureServiceConnection'  # ✅ Replace with your service connection
         appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'
-        package: '$(Pipeline.Workspace)/drop/*.zip'
+        appName: 'Murugu-docowebapp'                # ✅ Replace with your app name
+        package: '$(Pipeline.Workspace)/drop/**/*.zip'
