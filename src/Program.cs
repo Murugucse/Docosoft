@@ -8,7 +8,8 @@ builder.Services.AddSingleton<ICounterService, CounterService>();
 
 var app = builder.Build();
 
-// Enable Swagger in all
+// Enable Swagger for all
+
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
