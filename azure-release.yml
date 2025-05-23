@@ -1,29 +1,28 @@
-trigger: none  # prevent triggering on source changes
+trigger:
+  branches:
+    exclude: ['*']  # No auto trigger
 
 resources:
   pipelines:
-    - pipeline: CITrigger
-      source: Docosoft-CI-Pipeline  # ✅ Replace with your CI pipeline name exactly
+    - pipeline: buildOutput
+      source: Docosoft-CI-Pipeline  # your CI pipeline name
       trigger: true
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: Default  # your self-hosted agent pool
 
-jobs:
-- job: Deploy
-  displayName: 'CD - Deploy to Azure Web App'
-  steps:
-    - checkout: self
+steps:
+- task: DownloadPipelineArtifact@2
+  inputs:
+    buildType: 'specific'
+    project: 'Docosoft'
+    pipeline: 'Docosoft-CI-Pipeline'
+    buildVersionToDownload: 'latest'
+    artifactName: 'drop'
+    targetPath: '$(Pipeline.Workspace)/drop'
 
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        source: 'pipeline'
-        artifact: 'drop'
-        path: '$(Pipeline.Workspace)/drop'
-
-    - task: AzureWebApp@1
-      inputs:
-        azureSubscription: 'AzureServiceConnection'  # ✅ Replace with your service connection
-        appType: 'webAppLinux'
-        appName: 'Murugu-docowebapp'                # ✅ Replace with your app name
-        package: '$(Pipeline.Workspace)/drop/**/*.zip'
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'AzureServiceConnection'  # Use your configured Azure service connection name
+    appName: 'Murugu-docowebapp'   # Replace with your Azure Web App name
+    package: '$(Pipeline.Workspace)/drop'
