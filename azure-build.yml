@@ -33,5 +33,3 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-
-
