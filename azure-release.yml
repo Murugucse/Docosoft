@@ -26,3 +26,5 @@ steps:
     azureSubscription: 'AzureServiceConnection'  # Use your configured Azure service connection name
     appName: 'Murugu-docowebapp'   # Replace with your Azure Web App name
     package: '$(Pipeline.Workspace)/drop'
+
+
