@@ -5,11 +5,11 @@ trigger:
 resources:
   pipelines:
     - pipeline: buildOutput
-      source: Docosoft-CI-Pipeline  # your CI pipeline name
+      source: Docosoft-CI-Pipeline  # CI pipeline name
       trigger: true
 
 pool:
-  name: Default  # your self-hosted agent pool
+  name: Default  # self-hosted agent pool
 
 steps:
 - task: DownloadPipelineArtifact@2
